@@ -16,7 +16,7 @@ import gleam/io
 import tatoeba/sentence
 
 pub fn main() {
-  let sentence = sentence.get(id: 12212258)
+  let assert Some(sentence) = sentence.get(id: 12212258)
 
   io.println(sentence.text) // "This work is free of charge."
 }

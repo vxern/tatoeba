@@ -7,8 +7,9 @@ import gleam/httpc
 import gleam/int
 import gleam/io
 import gleam/json
-import gleam/option.{type Option, None}
+import gleam/option.{type Option, None, Some}
 import gleam/result
+import gleam/string
 import tatoeba/api
 import tatoeba/utils
 
@@ -387,8 +388,8 @@ pub type Sentence {
     /// 
     /// `Some(0)` indicates the sentence is original.
     based_on_id: Option(Int),
-    /// The sentence 
-    base: Option(Sentence),
+    // If viewing a translation, the sentence the translation was based on.
+    // base: Option(Sentence),
     /// Represents how reliable the sentence is.
     /// 
     /// Note: This value is reported by Tatoeba as not currently being in use. 
@@ -412,7 +413,9 @@ pub type Sentence {
     /// A list of `Audio`s attached to the sentence.
     audios: List(Audio),
     /// The current owner of the sentence.
-    owner: User,
+    /// 
+    /// This value can be `None` in the case that a user is suspended or otherwise.
+    owner: Option(User),
     /// The direction of writing applied to the sentence.
     writing_direction: WritingDirection,
     /// Indicates whether the sentence is favorited by the current user.
@@ -471,7 +474,7 @@ fn sentence(from data: Dynamic) -> Result(Sentence, List(dynamic.DecodeError)) {
   use script <- result.try(data |> field("script", optional(string)))
   use license <- result.try(data |> field("license", string))
   use based_on_id <- result.try(data |> field("based_on_id", optional(int)))
-  use base <- result.try(data |> field("base", optional(sentence)))
+  // use base <- result.try(data |> field("base", optional(sentence)))
   use correctness <- result.try(data |> field("correctness", int))
   use translations <- result.try(data |> field("translations", translations))
   use user_sentences <- result.try(
@@ -484,7 +487,7 @@ fn sentence(from data: Dynamic) -> Result(Sentence, List(dynamic.DecodeError)) {
     data |> field("transcriptions", list(transcription)),
   )
   use audios <- result.try(data |> field("audios", list(audio)))
-  use owner <- result.try(data |> field("user", user))
+  use owner <- result.try(data |> field("user", optional(user)))
   use writing_direction <- result.try(data |> field("dir", writing_direction))
   use is_favorite <- result.try(data |> field("is_favorite", optional(bool)))
   use is_owned_by_current_user <- result.try(
@@ -509,7 +512,7 @@ fn sentence(from data: Dynamic) -> Result(Sentence, List(dynamic.DecodeError)) {
     script: script,
     license: license,
     based_on_id: based_on_id,
-    base: base,
+    // base: base,
     correctness: correctness,
     translations: translations,
     user_sentences: user_sentences,
@@ -528,7 +531,7 @@ fn sentence(from data: Dynamic) -> Result(Sentence, List(dynamic.DecodeError)) {
 
 /// Gets data of a single sentence in the Tatoeba corpus.
 ///
-pub fn get(id id: Int) -> Result(Sentence, String) {
+pub fn get(id id: Int) -> Result(Option(Sentence), String) {
   let request =
     api.new_request_to("/sentence/" <> int.to_string(id))
     |> request.set_method(http.Get)
@@ -537,14 +540,20 @@ pub fn get(id id: Int) -> Result(Sentence, String) {
     httpc.send(request)
     |> result.map_error(fn(_) { "Failed to send request to Tatoeba." }),
   )
-  use sentence <- result.try(
-    json.decode(response.body, sentence)
-    |> result.map_error(fn(error) {
-      io.debug(error)
-      "Failed to decode sentence data: "
-      <> dynamic.classify(dynamic.from(error))
-    }),
-  )
 
-  Ok(sentence)
+  case response.body |> string.length() {
+    0 -> Ok(None)
+    _ -> {
+      use sentence <- result.try(
+        json.decode(response.body, sentence)
+        |> result.map_error(fn(error) {
+          io.debug(error)
+          "Failed to decode sentence data: "
+          <> dynamic.classify(dynamic.from(error))
+        }),
+      )
+
+      Ok(Some(sentence))
+    }
+  }
 }
