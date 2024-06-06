@@ -61,6 +61,7 @@ pub type TranscriptionType {
   AlternativeScript
 }
 
+// TODO(vxern): Document.
 pub fn transcription_type(
   from data: Dynamic,
 ) -> Result(TranscriptionType, List(dynamic.DecodeError)) {
@@ -465,7 +466,9 @@ fn list_id(from data: Dynamic) -> Result(Int, List(dynamic.DecodeError)) {
 /// Checks to see whether a `Dynamic` value is a sentence, and returns the sentence
 /// if it is.
 ///
-fn sentence(from data: Dynamic) -> Result(Sentence, List(dynamic.DecodeError)) {
+pub fn sentence(
+  from data: Dynamic,
+) -> Result(Sentence, List(dynamic.DecodeError)) {
   use id <- result.try(data |> field("id", int))
   use text <- result.try(data |> field("text", string))
   use language <- result.try(data |> field("lang", optional(string)))
@@ -547,7 +550,6 @@ pub fn get(id id: Int) -> Result(Option(Sentence), String) {
       use sentence <- result.try(
         json.decode(response.body, sentence)
         |> result.map_error(fn(error) {
-          io.debug(error)
           "Failed to decode sentence data: "
           <> dynamic.classify(dynamic.from(error))
         }),

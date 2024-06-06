@@ -4,9 +4,9 @@ import gleam/result
 /// Converts a stringified `Int` representation of a boolean value to a `Bool`.
 ///
 pub fn stringified_int_bool(
-  dynamic: Dynamic,
+  from data: Dynamic,
 ) -> Result(Bool, List(dynamic.DecodeError)) {
-  use string <- result.try(dynamic |> string())
+  use string <- result.try(data |> string())
 
   case string {
     "1" -> Ok(True)
