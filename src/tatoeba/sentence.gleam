@@ -5,7 +5,6 @@ import gleam/http
 import gleam/http/request
 import gleam/httpc
 import gleam/int
-import gleam/io
 import gleam/json
 import gleam/option.{type Option, None, Some}
 import gleam/result
@@ -15,7 +14,7 @@ import tatoeba/utils
 
 /// Represents values of a yet undocumented type.
 ///
-pub opaque type Unknown {
+pub type Unknown {
   Unknown
 }
 

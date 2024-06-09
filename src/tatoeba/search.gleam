@@ -2,7 +2,6 @@ import gleam/dynamic.{type Dynamic, bool, field, int, list, optional, string}
 import gleam/http
 import gleam/http/request
 import gleam/httpc
-import gleam/io
 import gleam/json
 import gleam/list
 import gleam/option.{type Option, None, Some}
@@ -176,24 +175,42 @@ fn finder(
 ///
 pub type Paging {
   Paging(
-    // TODO(vxern): Document.
+    /// The finder used in searching for the results.
     finder: Finder,
-    // TODO(vxern): Document.
+    /// The current page.
+    /// 
+    /// This value will be 0 if there are no results and, therefore, no pages.
     page: Int,
-    // TODO(vxern): Document.
-    current_page: Int,
-    // TODO(vxern): Document.
-    page_count: Int,
-    // TODO(vxern): Document.
-    per_page: Int,
-    // TODO(vxern): Document.
+    /// The number of results on the current page.
+    /// 
+    /// This value will be the same as `results_per_page` for all 'full' pages, but may be
+    /// lower than `results_per_page` if the last page contains fewer than `results_per_page`
+    /// results.
+    results_on_current_page: Int,
+    /// The number of results found as a result of the search query being run.
+    result_count: Int,
+    /// The number of results returned per page. 
+    results_per_page: Int,
+    /// The 1-based index of the first result on the current page within the context of the
+    /// whole search query.
+    /// 
+    /// For example, if a search query yields 342 results, and there are 10 `results_per_page`,
+    /// then the `start` value on page 1 will be 1, on page 2 it will be 11, on page 3 it will
+    /// be 31, and so on.  
     start: Int,
-    // TODO(vxern): Document.
+    /// The 1-based index of the last result on the current page within the context of the
+    /// whole search query.
+    /// 
+    /// For example, if a search query yields 342 results, and there are 10 `results_per_page`,
+    /// then the `end` value on page 1 will be 10, on page 2 it will be 20, on page 3 it will
+    /// be 30, and so on.
     end: Int,
-    // TODO(vxern): Document.
+    /// Indicates whether there is a previous page to retrieve.
     previous_page: Bool,
-    // TODO(vxern): Document.
+    /// Indicates whether there is a next page to retrieve.
     next_page: Bool,
+    /// The number of pages of results available to retrieve.
+    page_count: Int,
     /// The sort strategy used in the search query.
     sort_strategy: Option(SortStrategy),
     // TODO(vxern): Document.
@@ -211,43 +228,62 @@ pub type Paging {
   )
 }
 
+/// Checks to see whether a `Dynamic` value is a limit, and returns the limit if it does.
+///
+fn limit(from _: Dynamic) -> Result(sentence.Unknown, List(dynamic.DecodeError)) {
+  Ok(sentence.Unknown)
+}
+
+/// Checks to see whether a `Dynamic` value is a scope, and returns the scope if it does.
+///
+fn scope(from _: Dynamic) -> Result(sentence.Unknown, List(dynamic.DecodeError)) {
+  Ok(sentence.Unknown)
+}
+
+// TODO(vxern): Document.
+fn complete_sort(
+  from _: Dynamic,
+) -> Result(sentence.Unknown, List(dynamic.DecodeError)) {
+  Ok(sentence.Unknown)
+}
+
 /// Checks to see whether a `Dynamic` value contains paging data, and returns the
 /// data if it does.
 ///
 fn paging(from data: Dynamic) -> Result(Paging, List(dynamic.DecodeError)) {
   use finder <- result.try(data |> field("finder", finder))
   use page <- result.try(data |> field("page", int))
-  use current_page <- result.try(data |> field("current", int))
-  use page_count <- result.try(data |> field("count", int))
-  use per_page <- result.try(data |> field("per_page", int))
+  use results_on_current_page <- result.try(data |> field("current", int))
+  use result_count <- result.try(data |> field("count", int))
+  use results_per_page <- result.try(data |> field("per_page", int))
   use start <- result.try(data |> field("start", int))
   use end <- result.try(data |> field("end", int))
   use previous_page <- result.try(data |> field("previous_page", bool))
   use next_page <- result.try(data |> field("next_page", bool))
+  use page_count <- result.try(data |> field("page_count", int))
   use sort_strategy <- result.try(
     data |> field("sort", optional(sort_strategy)),
   )
-  use direction <- result.try(
-    data |> field("direction", optional(dynamic.dynamic)),
-  )
-  use limit <- result.try(data |> field("limit", optional(dynamic.dynamic)))
+  use direction <- result.try(data |> field("direction", optional(bool)))
+  use limit <- result.try(data |> field("limit", optional(limit)))
   use sort_default <- result.try(data |> field("sort_default", bool))
   use direction_default <- result.try(data |> field("direction_default", bool))
-  use scope <- result.try(data |> field("scope", optional(dynamic.dynamic)))
+  use scope <- result.try(data |> field("scope", optional(scope)))
   use complete_sort <- result.try(
-    data |> field("complete_sort", list(dynamic.dynamic)),
+    data |> field("complete_sort", list(complete_sort)),
   )
 
-  Paging(
+  Ok(Paging(
     finder: finder,
     page: page,
-    current_page: current_page,
-    page_count: page_count,
-    per_page: per_page,
+    results_on_current_page: results_on_current_page,
+    result_count: result_count,
+    results_per_page: results_per_page,
     start: start,
     end: end,
     previous_page: previous_page,
     next_page: next_page,
+    page_count: page_count,
     sort_strategy: sort_strategy,
     direction: direction,
     limit: limit,
@@ -255,7 +291,7 @@ fn paging(from data: Dynamic) -> Result(Paging, List(dynamic.DecodeError)) {
     direction_default: direction_default,
     scope: scope,
     complete_sort: complete_sort,
-  )
+  ))
 }
 
 /// Represents the results of a search query run over the Tatoeba corpus.
