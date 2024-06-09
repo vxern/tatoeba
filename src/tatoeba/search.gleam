@@ -251,26 +251,28 @@ fn complete_sort(
 /// data if it does.
 ///
 fn paging(from data: Dynamic) -> Result(Paging, List(dynamic.DecodeError)) {
+  use data <- result.try(data |> field("Sentences", dynamic.dynamic))
+
   use finder <- result.try(data |> field("finder", finder))
   use page <- result.try(data |> field("page", int))
   use results_on_current_page <- result.try(data |> field("current", int))
   use result_count <- result.try(data |> field("count", int))
-  use results_per_page <- result.try(data |> field("per_page", int))
+  use results_per_page <- result.try(data |> field("perPage", int))
   use start <- result.try(data |> field("start", int))
   use end <- result.try(data |> field("end", int))
-  use previous_page <- result.try(data |> field("previous_page", bool))
-  use next_page <- result.try(data |> field("next_page", bool))
-  use page_count <- result.try(data |> field("page_count", int))
+  use previous_page <- result.try(data |> field("prevPage", bool))
+  use next_page <- result.try(data |> field("nextPage", bool))
+  use page_count <- result.try(data |> field("pageCount", int))
   use sort_strategy <- result.try(
     data |> field("sort", optional(sort_strategy)),
   )
   use direction <- result.try(data |> field("direction", optional(bool)))
   use limit <- result.try(data |> field("limit", optional(limit)))
-  use sort_default <- result.try(data |> field("sort_default", bool))
-  use direction_default <- result.try(data |> field("direction_default", bool))
+  use sort_default <- result.try(data |> field("sortDefault", bool))
+  use direction_default <- result.try(data |> field("directionDefault", bool))
   use scope <- result.try(data |> field("scope", optional(scope)))
   use complete_sort <- result.try(
-    data |> field("complete_sort", list(complete_sort)),
+    data |> field("completeSort", list(complete_sort)),
   )
 
   Ok(Paging(

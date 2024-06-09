@@ -475,7 +475,9 @@ pub fn sentence(
   use language_name <- result.try(data |> field("lang_name", string))
   use script <- result.try(data |> field("script", optional(string)))
   use license <- result.try(data |> field("license", string))
-  use based_on_id <- result.try(data |> field("based_on_id", optional(int)))
+  use based_on_id <- result.try(
+    data |> optional_field("based_on_id", optional(int)),
+  )
   // use base <- result.try(data |> field("base", optional(sentence)))
   use correctness <- result.try(data |> field("correctness", int))
   use translations <- result.try(data |> field("translations", translations))
@@ -513,7 +515,7 @@ pub fn sentence(
     language_name: language_name,
     script: script,
     license: license,
-    based_on_id: based_on_id,
+    based_on_id: based_on_id |> option.flatten(),
     // base: base,
     correctness: correctness,
     translations: translations,
