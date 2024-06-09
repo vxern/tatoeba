@@ -9,14 +9,15 @@
 gleam add tatoeba
 ```
 
-To get a sentence, use `sentence.get(id: <id>)`:
+To get a sentence, use `sentence.get(id: <sentence id>)`, passing a sentence ID obtained from `sentence.new_id(id: <id>)`:
 
 ```gleam
 import gleam/io
 import tatoeba/sentence
 
 pub fn main() {
-  let assert Some(sentence) = sentence.get(id: 12212258)
+  let assert Ok(id) = sentence.new_id(12_212_258)
+  let assert Ok(Some(sentence)) = sentence.get(id)
 
   io.println(sentence.text) // "This work is free of charge."
 }
