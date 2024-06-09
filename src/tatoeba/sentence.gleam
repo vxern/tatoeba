@@ -215,6 +215,11 @@ pub type Translation {
     language_tag: String,
     /// The full name of the language the translation is written in.
     language_name: String,
+    /// Whether the translation has been created for a standalone sentence, i.e. not
+    /// a translation of a translation.
+    is_direct: Option(Bool),
+    /// The direction of writing in the sentence.
+    writing_direction: WritingDirection,
     /// Represents how reliable the translation is.
     /// 
     /// Note: This value is reported by Tatoeba as not currently being in use. 
@@ -239,6 +244,8 @@ fn translation(
   use language <- result.try(data |> field("lang", optional(string)))
   use language_tag <- result.try(data |> field("lang_tag", string))
   use language_name <- result.try(data |> field("lang_name", string))
+  use is_direct <- result.try(data |> optional_field("isDirect", bool))
+  use writing_direction <- result.try(data |> field("dir", writing_direction))
   use correctness <- result.try(data |> field("correctness", int))
   use script <- result.try(data |> field("script", optional(string)))
   use transcriptions <- result.try(
@@ -252,6 +259,8 @@ fn translation(
     language: language,
     language_tag: language_tag,
     language_name: language_name,
+    is_direct: is_direct,
+    writing_direction: writing_direction,
     correctness: correctness,
     script: script,
     transcriptions: transcriptions,
@@ -413,7 +422,7 @@ pub type Sentence {
     /// 
     /// This value can be `None` in the case that a user is suspended or otherwise.
     owner: Option(User),
-    /// The direction of writing applied to the sentence.
+    /// The direction of writing in the sentence.
     writing_direction: WritingDirection,
     /// Indicates whether the sentence is favorited by the current user.
     /// 
