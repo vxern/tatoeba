@@ -159,9 +159,7 @@ pub type Finder {
 
 /// Checks to see whether a `Dynamic` value is a finder, and returns the finder if it is.
 ///
-fn finder(
-  from data: dynamic.Dynamic,
-) -> Result(Finder, List(dynamic.DecodeError)) {
+fn finder(from data: Dynamic) -> Result(Finder, List(dynamic.DecodeError)) {
   use string <- result.try(data |> string())
 
   case string {
