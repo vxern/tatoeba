@@ -396,10 +396,7 @@ pub type Sentence {
     correctness: Int,
     /// A list of `Translation`s of the sentence.
     translations: List(Translation),
-    /// ⚠️ It's not clear what this value represents.
-    ///
-    /// If you know what it is, please fill it in. 
-    /// 
+    // TODO(vxern): What does this value represent?
     /// Note: This value will always be `None` given that this API wrapper does not
     /// act as a user.
     user_sentences: Option(List(Unknown)),
@@ -533,30 +530,63 @@ pub fn sentence(
   ))
 }
 
+/// Represents the ID of a sentence in the Tatoeba corpus.
+///
+pub opaque type SentenceId {
+  SentenceId(value: Int)
+}
+
+/// Represents an error resulting from an invalid value being used for
+/// creating an ID.
+///
+pub type IdError {
+  /// Received an invalid input.
+  InvalidValueError(Int)
+}
+
+/// Creates a new ID to be used for querying the Tatoeba corpus.
+///
+pub fn new_id(id: Int) -> Result(SentenceId, IdError) {
+  case id {
+    negative if id < 0 || id == 0 -> Error(InvalidValueError(negative))
+    _ -> Ok(SentenceId(id))
+  }
+}
+
+/// The possible errors sentence retrieval can fail with.
+///
+pub type SentenceError {
+  /// Failed to make a request to Tatoeba.
+  RequestError(Dynamic)
+  /// Failed to decode the response data.
+  DecodeError(json.DecodeError)
+}
+
 /// Gets data of a single sentence in the Tatoeba corpus.
 ///
-pub fn get(id id: Int) -> Result(Option(Sentence), String) {
+pub fn get(id id: SentenceId) -> Result(Option(Sentence), SentenceError) {
   let request =
-    api.new_request_to("/sentence/" <> int.to_string(id))
+    api.new_request_to("/sentence/" <> int.to_string(id.value))
     |> request.set_method(http.Get)
 
   use response <- result.try(
     httpc.send(request)
-    |> result.map_error(fn(_) { "Failed to send request to Tatoeba." }),
+    |> result.map_error(fn(error) { RequestError(error) }),
   )
 
   case response.body |> string.length() {
     0 -> Ok(None)
-    _ -> {
-      use sentence <- result.try(
-        json.decode(response.body, sentence)
-        |> result.map_error(fn(error) {
-          "Failed to decode sentence data: "
-          <> dynamic.classify(dynamic.from(error))
-        }),
-      )
-
-      Ok(Some(sentence))
-    }
+    _ -> response.body |> decode_payload() |> result.map(Some)
   }
+}
+
+/// Decodes the received sentence payload.
+///
+fn decode_payload(payload: String) -> Result(Sentence, SentenceError) {
+  use sentence <- result.try(
+    json.decode(payload, sentence)
+    |> result.map_error(fn(error) { DecodeError(error) }),
+  )
+
+  Ok(sentence)
 }
