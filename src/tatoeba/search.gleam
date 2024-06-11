@@ -319,7 +319,7 @@ fn results(
 
 /// Runs a search query using the passed `options` to filter the results.
 ///
-pub fn run(options: SearchOptions) -> Result(SearchResults, String) {
+pub fn run(options: SearchOptions) -> Result(SearchResults, api.ApiError) {
   let request =
     api.new_request_to("/search")
     |> request.set_method(http.Get)
@@ -327,14 +327,18 @@ pub fn run(options: SearchOptions) -> Result(SearchResults, String) {
 
   use response <- result.try(
     httpc.send(request)
-    |> result.map_error(fn(_) { "Failed to send request to Tatoeba." }),
+    |> result.map_error(fn(error) { api.RequestError(error) }),
   )
+
+  response.body |> decode_payload()
+}
+
+/// Decodes the received search payload.
+///
+fn decode_payload(payload: String) -> Result(SearchResults, api.ApiError) {
   use results <- result.try(
-    json.decode(response.body, results)
-    |> result.map_error(fn(error) {
-      "Failed to decode sentence data: "
-      <> dynamic.classify(dynamic.from(error))
-    }),
+    json.decode(payload, results)
+    |> result.map_error(fn(error) { api.DecodeError(error) }),
   )
 
   Ok(results)

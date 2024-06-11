@@ -562,25 +562,16 @@ pub fn new_id(id: Int) -> Result(SentenceId, IdError) {
   }
 }
 
-/// The possible errors sentence retrieval can fail with.
-///
-pub type SentenceError {
-  /// Failed to make a request to Tatoeba.
-  RequestError(Dynamic)
-  /// Failed to decode the response data.
-  DecodeError(json.DecodeError)
-}
-
 /// Gets data of a single sentence in the Tatoeba corpus.
 ///
-pub fn get(id id: SentenceId) -> Result(Option(Sentence), SentenceError) {
+pub fn get(id id: SentenceId) -> Result(Option(Sentence), api.ApiError) {
   let request =
     api.new_request_to("/sentence/" <> int.to_string(id.value))
     |> request.set_method(http.Get)
 
   use response <- result.try(
     httpc.send(request)
-    |> result.map_error(fn(error) { RequestError(error) }),
+    |> result.map_error(fn(error) { api.RequestError(error) }),
   )
 
   case response.body |> string.length() {
@@ -591,10 +582,10 @@ pub fn get(id id: SentenceId) -> Result(Option(Sentence), SentenceError) {
 
 /// Decodes the received sentence payload.
 ///
-fn decode_payload(payload: String) -> Result(Sentence, SentenceError) {
+fn decode_payload(payload: String) -> Result(Sentence, api.ApiError) {
   use sentence <- result.try(
     json.decode(payload, sentence)
-    |> result.map_error(fn(error) { DecodeError(error) }),
+    |> result.map_error(fn(error) { api.DecodeError(error) }),
   )
 
   Ok(sentence)

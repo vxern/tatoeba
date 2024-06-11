@@ -1,5 +1,7 @@
+import gleam/dynamic.{type Dynamic}
 import gleam/http.{type Header}
 import gleam/http/request.{type Request}
+import gleam/json
 import gleam/list
 import gleam/option.{None, Some}
 import gleam/uri.{type Uri, Uri}
@@ -21,6 +23,15 @@ pub const url = Uri(
 pub const headers: List(Header) = [
   #("User-Agent", "tatoeba.gleam (https://github.com/vxern/tatoeba)"),
 ]
+
+/// The possible errors API calls can fail with.
+///
+pub type ApiError {
+  /// Failed to make a request to Tatoeba.
+  RequestError(Dynamic)
+  /// Failed to decode the response data.
+  DecodeError(json.DecodeError)
+}
 
 /// Creates a new request to the given endpoint.
 /// 
