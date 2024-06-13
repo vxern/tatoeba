@@ -14,7 +14,7 @@ pub type FilterStrategy {
 /// Converts the filter strategy to its string representation ready to encode
 /// in the query.
 ///
-pub fn filter_strategy_to_string(strategy: FilterStrategy) -> String {
+fn filter_strategy_to_string(strategy: FilterStrategy) -> String {
   case strategy {
     Limit -> "limit"
     Exclude -> "exclude"
@@ -34,7 +34,7 @@ pub type Link {
 
 /// Converts the link to its string representation ready to encode in the
 /// query.
-pub fn link_to_string(link: Link) -> String {
+fn link_to_string(link: Link) -> String {
   case link {
     Direct -> "direct"
     Indirect -> "indirect"

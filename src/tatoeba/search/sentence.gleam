@@ -39,7 +39,7 @@ pub fn set_at_most(options: WordCountOptions, count: Int) -> WordCountOptions {
 /// Converts word count options to a set of query parameters to be encoded in the
 /// search query.
 /// 
-fn word_count_options_to_query_parameters(
+pub fn word_count_options_to_query_parameters(
   options: WordCountOptions,
 ) -> List(#(String, String)) {
   [

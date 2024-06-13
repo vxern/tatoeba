@@ -28,15 +28,11 @@ pub fn sentence_exists_test() {
 }
 
 pub fn failed_request_test() {
-  // TODO: Test this.
-
-  Nil
+  todo
 }
 
 pub fn failed_decoding_test() {
-  // TODO: Test this.
-
-  Nil
+  todo
 }
 
 pub fn sentence_removed_test() {
@@ -50,7 +46,7 @@ pub fn sentence_removed_test() {
   should.be_none(sentence)
 }
 
-pub fn sentence_test() {
+pub fn sentence_get_test() {
   let assert Ok(id) = sentence.new_id(1)
   let assert Ok(Some(sentence)) = sentence.get(id)
 
