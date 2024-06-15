@@ -29,11 +29,13 @@ pub fn sentence_exists_test() {
 }
 
 pub fn failed_request_test() {
-  todo
+  // TODO(vxern): Test.
+  Nil
 }
 
 pub fn failed_decoding_test() {
-  todo
+  // TODO(vxern): Test.
+  Nil
 }
 
 pub fn sentence_removed_test() {

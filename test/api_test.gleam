@@ -1,3 +1,4 @@
 pub fn new_request_to_test() {
-  todo
+  // TODO(vxern): Test.
+  Nil
 }

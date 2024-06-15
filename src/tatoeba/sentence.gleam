@@ -59,7 +59,9 @@ pub type TranscriptionType {
   AlternativeScript
 }
 
-// TODO(vxern): Document.
+/// Checks to see whether a `Dynamic` value is a transcription type, and returns the
+/// transcription type if it is.
+///
 pub fn transcription_type(
   from data: Dynamic,
 ) -> Result(TranscriptionType, List(dynamic.DecodeError)) {
@@ -404,7 +406,7 @@ pub type Sentence {
     correctness: Int,
     /// A list of `Translation`s of the sentence.
     translations: List(Translation),
-    // TODO(vxern): What does this value represent?
+    // TODO: What does this value represent?
     /// Note: This value will always be `None` given that this API wrapper does not
     /// act as a user.
     user_sentences: Option(List(Unknown)),

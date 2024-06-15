@@ -66,10 +66,30 @@ pub fn set_reverse_sort_test() {
 pub fn to_query_parameters_test() {
   structs.search_options()
   |> search.to_query_parameters()
-
-  todo
+  |> should.equal([
+    #("list", "123"),
+    #("tags", "MyTag,TheirTag,YourTag"),
+    #("native", "yes"),
+    #("has_audio", "no"),
+    #("unapproved", "no"),
+    #("orphans", "yes"),
+    #("user", "7031"),
+    #("to", "ron"),
+    #("from", "eng"),
+    #("query", "betwixt"),
+    #("word_count_max", "20"),
+    #("word_count_min", "10"),
+    #("trans_has_audio", "yes"),
+    #("trans_unapproved", "no"),
+    #("trans_orphan", "yes"),
+    #("trans_user", "123"),
+    #("trans_link", "direct"),
+    #("trans_to", "ron"),
+    #("trans_filter", "limit"),
+  ])
 }
 
 pub fn run_test() {
-  todo
+  // TODO(vxern): Test.
+  Nil
 }

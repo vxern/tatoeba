@@ -3,7 +3,6 @@ import gleam/set
 import gleeunit/should
 import structs
 import tatoeba/search/sentence as sentence_options
-import utils
 
 pub fn new_word_count_options_test() {
   let word_count_options = sentence_options.new_word_count_options()
@@ -31,11 +30,7 @@ pub fn set_at_most_test() {
 pub fn word_count_options_to_query_parameters_test() {
   structs.word_count_options()
   |> sentence_options.word_count_options_to_query_parameters()
-  |> utils.sort_parameters()
-  |> should.equal(
-    [#("word_count_min", "10"), #("word_count_max", "20")]
-    |> utils.sort_parameters(),
-  )
+  |> should.equal([#("word_count_max", "20"), #("word_count_min", "10")])
 }
 
 pub fn new_test() {
@@ -157,22 +152,18 @@ pub fn set_list_id_test() {
 pub fn to_query_parameters_test() {
   structs.sentence_options()
   |> sentence_options.to_query_parameters()
-  |> utils.sort_parameters()
-  |> should.equal(
-    [
-      #("query", "betwixt"),
-      #("from", "eng"),
-      #("to", "ron"),
-      #("user", "7031"),
-      #("orphans", "yes"),
-      #("unapproved", "no"),
-      #("has_audio", "no"),
-      #("native", "yes"),
-      #("tags", "MyTag,YourTag,TheirTag"),
-      #("list", "123"),
-      #("word_count_min", "10"),
-      #("word_count_max", "20"),
-    ]
-    |> utils.sort_parameters(),
-  )
+  |> should.equal([
+    #("list", "123"),
+    #("tags", "MyTag,TheirTag,YourTag"),
+    #("native", "yes"),
+    #("has_audio", "no"),
+    #("unapproved", "no"),
+    #("orphans", "yes"),
+    #("user", "7031"),
+    #("to", "ron"),
+    #("from", "eng"),
+    #("query", "betwixt"),
+    #("word_count_max", "20"),
+    #("word_count_min", "10"),
+  ])
 }

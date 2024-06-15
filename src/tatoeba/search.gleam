@@ -150,9 +150,9 @@ pub fn to_query_parameters(options: SearchOptions) -> List(#(String, String)) {
   ])
 }
 
-// TODO(vxern): Document.
+// TODO: If you know what the following represents, please open a PR to fill the
+// documentation of these bits out.
 pub type Finder {
-  // TODO(vxern): Document.
   All
 }
 
@@ -210,17 +210,13 @@ pub type Paging {
     page_count: Int,
     /// The sort strategy used in the search query.
     sort_strategy: Option(SortStrategy),
-    // TODO(vxern): Document.
+    // TODO: If you know what the following do or how they're applied, please open a PR to fill
+    // these bits out.
     direction: Option(Bool),
-    // TODO(vxern): Document.
     limit: Option(sentence.Unknown),
-    // TODO(vxern): Document.
     sort_default: Bool,
-    // TODO(vxern): Document.
     direction_default: Bool,
-    // TODO(vxern): Document.
     scope: Option(sentence.Unknown),
-    // TODO(vxern): Document.
     complete_sort: List(sentence.Unknown),
   )
 }
@@ -237,7 +233,7 @@ fn scope(from _: Dynamic) -> Result(sentence.Unknown, List(dynamic.DecodeError))
   Ok(sentence.Unknown)
 }
 
-// TODO(vxern): Document.
+// TODO: If you know what the `complete_sort` is, please open a PR to document it.
 fn complete_sort(
   from _: Dynamic,
 ) -> Result(sentence.Unknown, List(dynamic.DecodeError)) {
