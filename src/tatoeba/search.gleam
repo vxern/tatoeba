@@ -1,7 +1,6 @@
 import gleam/dynamic.{type Dynamic, bool, field, int, list, optional, string}
 import gleam/http
 import gleam/http/request
-import gleam/httpc
 import gleam/json
 import gleam/list
 import gleam/option.{type Option, None, Some}
@@ -319,14 +318,18 @@ fn results(
 
 /// Runs a search query using the passed `options` to filter the results.
 ///
-pub fn run(options: SearchOptions) -> Result(SearchResults, api.ApiError) {
+pub fn run(
+  options: SearchOptions,
+  using send_request: api.RequestSender(error),
+) -> Result(SearchResults, api.ApiError(error)) {
   let request =
     api.new_request_to("/search")
     |> request.set_method(http.Get)
     |> request.set_query(to_query_parameters(options))
 
   use response <- result.try(
-    httpc.send(request)
+    request
+    |> send_request()
     |> result.map_error(fn(error) { api.RequestError(error) }),
   )
 
@@ -335,7 +338,7 @@ pub fn run(options: SearchOptions) -> Result(SearchResults, api.ApiError) {
 
 /// Decodes the received search payload.
 ///
-fn decode_payload(payload: String) -> Result(SearchResults, api.ApiError) {
+fn decode_payload(payload: String) -> Result(SearchResults, api.ApiError(error)) {
   use results <- result.try(
     json.decode(payload, results)
     |> result.map_error(fn(error) { api.DecodeError(error) }),

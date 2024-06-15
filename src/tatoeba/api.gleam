@@ -1,6 +1,6 @@
-import gleam/dynamic.{type Dynamic}
 import gleam/http.{type Header}
 import gleam/http/request.{type Request}
+import gleam/http/response.{type Response}
 import gleam/json
 import gleam/list
 import gleam/option.{None, Some}
@@ -26,12 +26,17 @@ pub const headers: List(Header) = [
 
 /// The possible errors API calls can fail with.
 ///
-pub type ApiError {
+pub type ApiError(error) {
   /// Failed to make a request to Tatoeba.
-  RequestError(Dynamic)
+  RequestError(error)
   /// Failed to decode the response data.
   DecodeError(json.DecodeError)
 }
+
+/// Represents a function used to send a request to Tatoeba.
+///
+pub type RequestSender(error) =
+  fn(Request(String)) -> Result(Response(String), error)
 
 /// Creates a new request to the given endpoint.
 /// 

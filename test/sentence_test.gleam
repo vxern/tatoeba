@@ -1,3 +1,4 @@
+import gleam/httpc
 import gleam/list
 import gleam/option.{None, Some}
 import gleeunit/should
@@ -18,7 +19,7 @@ pub fn new_id_test() {
 
 pub fn sentence_exists_test() {
   let assert Ok(id) = sentence.new_id(12_212_258)
-  let result = sentence.get(id)
+  let result = sentence.get(id, using: httpc.send)
 
   result |> should.be_ok()
 
@@ -37,7 +38,7 @@ pub fn failed_decoding_test() {
 
 pub fn sentence_removed_test() {
   let assert Ok(id) = sentence.new_id(4_802_955)
-  let result = sentence.get(id)
+  let result = sentence.get(id, using: httpc.send)
 
   result |> should.be_ok()
 
@@ -48,7 +49,7 @@ pub fn sentence_removed_test() {
 
 pub fn sentence_get_test() {
   let assert Ok(id) = sentence.new_id(1)
-  let assert Ok(Some(sentence)) = sentence.get(id)
+  let assert Ok(Some(sentence)) = sentence.get(id, using: httpc.send)
 
   sentence.id |> should.equal(1)
   sentence.text |> should.equal("我們試試看！")

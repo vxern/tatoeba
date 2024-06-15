@@ -3,7 +3,6 @@ import gleam/dynamic.{
 }
 import gleam/http
 import gleam/http/request
-import gleam/httpc
 import gleam/int
 import gleam/json
 import gleam/option.{type Option, None, Some}
@@ -564,13 +563,17 @@ pub fn new_id(id: Int) -> Result(SentenceId, IdError) {
 
 /// Gets data of a single sentence in the Tatoeba corpus.
 ///
-pub fn get(id id: SentenceId) -> Result(Option(Sentence), api.ApiError) {
+pub fn get(
+  id id: SentenceId,
+  using send_request: api.RequestSender(error),
+) -> Result(Option(Sentence), api.ApiError(error)) {
   let request =
     api.new_request_to("/sentence/" <> int.to_string(id.value))
     |> request.set_method(http.Get)
 
   use response <- result.try(
-    httpc.send(request)
+    request
+    |> send_request()
     |> result.map_error(fn(error) { api.RequestError(error) }),
   )
 
@@ -582,7 +585,7 @@ pub fn get(id id: SentenceId) -> Result(Option(Sentence), api.ApiError) {
 
 /// Decodes the received sentence payload.
 ///
-fn decode_payload(payload: String) -> Result(Sentence, api.ApiError) {
+fn decode_payload(payload: String) -> Result(Sentence, api.ApiError(error)) {
   use sentence <- result.try(
     json.decode(payload, sentence)
     |> result.map_error(fn(error) { api.DecodeError(error) }),
